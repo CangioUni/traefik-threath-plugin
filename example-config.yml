@@ -1,0 +1,60 @@
+# Example Traefik configuration using the threat detection plugin
+
+# Static configuration (traefik.yml)
+experimental:
+  plugins:
+    traefik-threath-plugin:
+      moduleName: github.com/CangioUni/traefik-threath-plugin
+      version: v1.0.0
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+api:
+  dashboard: true
+  insecure: true
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+
+---
+# Dynamic configuration (dynamic.yml)
+http:
+  middlewares:
+    threat-detector:
+      plugin:
+        traefik-threath-plugin:
+          enabled: true
+          maxAttempts: 5
+          banDuration: 3600  # 1 hour in seconds
+          threatPatterns:
+            - "/wp-admin"
+            - "/wp-login.php"
+            - "/wp-login"
+            - "/admin"
+            - "/administrator"
+            - "/phpmyadmin"
+            - "/pma"
+            - "/.env"
+            - "/.git"
+            - "/config"
+            - "/backup"
+
+  routers:
+    my-app:
+      rule: "Host(`example.com`)"
+      entryPoints:
+        - web
+      middlewares:
+        - threat-detector
+      service: my-app-service
+
+  services:
+    my-app-service:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:8000"

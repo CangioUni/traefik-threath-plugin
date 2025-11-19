@@ -1,0 +1,16 @@
+displayName: Threat Detection Plugin
+type: middleware
+
+import: github.com/CangioUni/traefik-threath-plugin
+
+summary: 'Detect and block potential security threats based on URL patterns and IP tracking'
+
+testData:
+  Enabled: true
+  MaxAttempts: 5
+  BanDuration: 3600
+  ThreatPatterns:
+    - "/wp-admin"
+    - "/wp-login"
+    - "/admin"
+    - "/phpmyadmin"
